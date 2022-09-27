@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>计算icon_hash</title>
+    <script src="murmurhash3.min.js"></script>
+</head>
+<body>
+    <h3>选择icon文件:<h3>
+    <input type="file" id="fielinput"/>
+    <br><br><br>
+    <div>icon_hash:<span id="hash"></span></div>
+
+    <script>
+        window.onload = function () {
+            var input = document.getElementById("fielinput");
+            if (typeof (FileReader) === 'undefined') {
+                console.log("你的浏览器不支持 FileReader");
+                input.setAttribute('disabled', 'disabled');
+            } else {
+                input.addEventListener('change', parseFileToBase64, false);
+            }
+        }
+        
+        function parseFileToBase64() {
+            // 获取到文件对象
+            var file = this.files[0];
+            console.log("file是："+this.files[0]);
+            // 获取FileReader实例
+            var reader = new FileReader();
+            // 将文件加载进入
+            reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                var insertIntervalString = (originStr, disNum = 10, insertStr = "\n") => originStr.replace(new RegExp("(.{" + disNum + "})", "g"), "$1" + insertStr);
+                var newstr = insertIntervalString(this.result.slice(25), 76, "\n")+'\n';
+                // 输出该文件的base64编码，调用mmh3计算icon_hash
+                murmurhash3_32(newstr)
+            }
+        }
+
+        function murmurhash3_32(str) {
+            var seed = 0;
+            var hash = MurmurHash3.hashBytes (str, str.length, seed);
+            document.getElementById('hash').innerText = hash;
+        }
+    </script>
+</body>
+</html>
